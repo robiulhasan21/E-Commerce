@@ -70,25 +70,48 @@ const PlaceOrder = () => {
     setLoading(true)
 
     try {
-      const response = await axios.post(
-        backendUrl + '/api/order/create',
-        {
-          items: orderItems,
-          amount: totalAmount,
-          address: address,
-          paymentMethod: method
-        },
-        {
-          headers: { token }
-        }
-      )
+      if (method === 'cod') {
+        const response = await axios.post(
+          backendUrl + '/api/order/create',
+          {
+            items: orderItems,
+            amount: totalAmount,
+            address: address,
+            paymentMethod: method
+          },
+          {
+            headers: { token }
+          }
+        )
 
-      if (response.data.success) {
-        toast.success("Order placed successfully!")
-        setCartItems({})
-        navigate('/orders')
+        if (response.data.success) {
+          toast.success("Order placed successfully!")
+          setCartItems({})
+          navigate('/orders')
+        } else {
+          toast.error(response.data.message)
+        }
       } else {
-        toast.error(response.data.message)
+        // For bkash / nagad: initiate sslcommerz flow and redirect to payment gateway
+        const res = await axios.post(
+          backendUrl + '/api/payment/sslcommerz/initiate',
+          {
+            items: orderItems,
+            amount: totalAmount,
+            address: address,
+            paymentMethod: method,
+            cus_name: `${address.firstName} ${address.lastName}`,
+            cus_email: address.email,
+            cus_phone: address.phone
+          },
+          { headers: { token } }
+        )
+
+        if (res.data.success && res.data.url) {
+          window.location.href = res.data.url
+        } else {
+          toast.error(res.data.message || 'Failed to initialize payment')
+        }
       }
     } catch (error) {
       console.log(error)

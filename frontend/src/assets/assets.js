@@ -117,6 +117,10 @@ import p_img101 from './p_img101.png'
 import logo from './logo.png'
 import hero_img from './hero_img.png'
 import hero_img1 from './hero_img1.png'
+import subhero_img1 from './hero_img.png'
+import subhero_img2 from './hero_img1.png'
+import subhero_img3 from './hero_img.png'
+import subhero_img4 from './hero_img1.png'
 import latestcollection_video from './latestcollection_video.mp4'
 import bestsellers_video from './bestsellers_video.mp4'
 import cart_icon from './cart_icon.png'
@@ -136,12 +140,17 @@ import nagad_logo from './nagad_logo.png'
 import bkash_logo from './bkash_logo.png'
 import cross_icon from './cross_icon.png'
 import favicon from './favicon.png'
+import chat_img from './chat_img.png'
 
 
 export const assets = {
     logo,
     hero_img,
     hero_img1,
+    subhero_img1,
+    subhero_img2,
+    subhero_img3,
+    subhero_img4,
     cart_icon,
     latestcollection_video,
     bestsellers_video,
@@ -160,7 +169,8 @@ export const assets = {
     nagad_logo,
     bkash_logo,
     cross_icon,
-    favicon
+    favicon,
+    chat_img
 }
 
 export const products = [

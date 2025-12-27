@@ -1,6 +1,8 @@
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken'
+import { v2 as cloudinary } from 'cloudinary'
+import crypto from 'crypto'
 import userModel from "../models/userModel.js";
 
 const createToken = (id) => {
@@ -207,3 +209,88 @@ const updateUserPassword = async (req, res) => {
 }
 
 export { loginUser, registerUser, adminLogin, getUserProfile, updateUserProfile, updateUserPassword }
+
+// Upload user avatar
+const uploadUserAvatar = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.json({ success: false, message: 'No file uploaded' })
+        }
+
+        // Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            resource_type: 'image',
+            folder: 'user-avatars'
+        })
+
+        const updatedUser = await userModel.findByIdAndUpdate(
+            req.userId,
+            { avatar: { url: result.secure_url, public_id: result.public_id } },
+            { new: true }
+        ).select('-password')
+
+        if (!updatedUser) {
+            return res.json({ success: false, message: 'User not found' })
+        }
+
+        res.json({ success: true, user: updatedUser, message: 'Avatar uploaded successfully' })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+export { uploadUserAvatar }
+
+// Forgot password - generate token and (optionally) send email
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body
+        if (!email) return res.json({ success: false, message: 'Email is required' })
+
+        const user = await userModel.findOne({ email })
+        if (!user) return res.json({ success: false, message: 'User not found' })
+
+        // generate token
+        const token = crypto.randomBytes(20).toString('hex')
+        const expiry = Date.now() + 3600000 // 1 hour
+
+        user.resetToken = token
+        user.resetTokenExpiry = expiry
+        await user.save()
+
+        // NOTE: Email sending is not configured. Returning token in response for development/testing.
+        res.json({ success: true, message: 'Reset token generated. Use this token to reset password.', token })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+// Reset password using token
+const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body
+        if (!token || !newPassword) return res.json({ success: false, message: 'Token and new password are required' })
+
+        if (newPassword.length < 8) return res.json({ success: false, message: 'Password must be at least 8 characters' })
+
+        const user = await userModel.findOne({ resetToken: token, resetTokenExpiry: { $gt: Date.now() } })
+        if (!user) return res.json({ success: false, message: 'Invalid or expired token' })
+
+        const salt = await bcrypt.genSalt(10)
+        const hashed = await bcrypt.hash(newPassword, salt)
+
+        user.password = hashed
+        user.resetToken = null
+        user.resetTokenExpiry = null
+        await user.save()
+
+        res.json({ success: true, message: 'Password has been reset successfully' })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+export { forgotPassword, resetPassword }

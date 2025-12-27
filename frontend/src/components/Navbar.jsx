@@ -58,7 +58,7 @@ const Navbar = () => {
               <Link to='/dashboard'><img className='w-5 cursor-pointer' src={assets.profile_icon} alt="Profile" /></Link>
               <div className='absolute right-0 z-50 hidden pt-4 group-hover:block dropdown-menu'>
                 <div className='flex flex-col gap-2 px-5 py-3 text-gray-500 rounded shadow-lg w-36 bg-slate-100'>
-                  <Link to='/dashboard' className='cursor-pointer hover:text-black'>My Dashboard</Link>
+                  <Link to='/dashboard' className='cursor-pointer hover:text-black'>My Profile</Link>
                   <Link to='/orders' className='cursor-pointer hover:text-black'>Orders</Link>
                   <p onClick={handleLogout} className='cursor-pointer hover:text-black'>Logout</p>
                 </div>

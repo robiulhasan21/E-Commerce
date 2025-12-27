@@ -13,6 +13,14 @@ const Login = () => {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
+  const [forgotMode, setForgotMode] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [loadingForgot, setLoadingForgot] = useState(false)
+  const [resetToken, setResetToken] = useState('')
+  const [showResetForm, setShowResetForm] = useState(false)
+  const [resetPassword, setResetPassword] = useState('')
+  const [resetConfirmPassword, setResetConfirmPassword] = useState('')
+  const [loadingReset, setLoadingReset] = useState(false)
 
   const clearForm = () => {
     setName('')
@@ -97,12 +105,37 @@ const Login = () => {
       }
 
       <div className='w-full flex justify-between text-sm mt-[-8px]'>
-        <p className='cursor-pointer'>Forget your password?</p>
+        <button type='button' onClick={() => setForgotMode(prev => !prev)} className='text-left text-blue-700 underline'>Forgot your password?</button>
         {currentState === 'Login' ?
           <p onClick={() => setCurrentState('Sign Up')} className='cursor-pointer'>Create account</p> :
           <p onClick={() => setCurrentState('Login')} className='cursor-pointer'>Login Here</p>
         }
       </div>
+
+      {forgotMode && (
+        <form onSubmit={handleForgotSubmit} className='w-full mt-3'>
+          <div className='flex gap-2'>
+            <input value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} className='border border-blue-200 rounded py-2 px-3 flex-1' type='email' placeholder='Enter your account email' />
+            <button type='submit' disabled={loadingForgot} className='bg-yellow-600 text-white rounded px-4 disabled:opacity-50'>
+              {loadingForgot ? 'Sending...' : 'Send'}
+            </button>
+          </div>
+
+          {showResetForm && (
+            <form onSubmit={handleResetSubmit} className='mt-3 space-y-2'>
+              <input value={resetToken} onChange={(e) => setResetToken(e.target.value)} className='border border-blue-200 rounded py-2 px-3 w-full' type='text' placeholder='Reset token' />
+              <input value={resetPassword} onChange={(e) => setResetPassword(e.target.value)} className='border border-blue-200 rounded py-2 px-3 w-full' type='password' placeholder='New password' />
+              <input value={resetConfirmPassword} onChange={(e) => setResetConfirmPassword(e.target.value)} className='border border-blue-200 rounded py-2 px-3 w-full' type='password' placeholder='Confirm new password' />
+              <div className='flex gap-2'>
+                <button type='button' onClick={() => { setShowResetForm(false); setResetToken(''); }} className='bg-gray-300 text-gray-800 px-4 py-2 rounded'>Cancel</button>
+                <button type='button' onClick={handleResetSubmit} disabled={loadingReset} className='bg-green-600 text-white px-4 py-2 rounded'>
+                  {loadingReset ? 'Resetting...' : 'Reset Password'}
+                </button>
+              </div>
+            </form>
+          )}
+        </form>
+      )}
 
       <button 
         className='bg-blue-950 text-white rounded py-2 px-8 mt-4 disabled:opacity-50 disabled:cursor-not-allowed' 

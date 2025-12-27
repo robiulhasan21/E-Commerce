@@ -5,7 +5,7 @@ import { assets } from '../assets/assets'
 import { toast } from 'react-toastify'
 import { useParams, useNavigate } from 'react-router-dom'
 
-const Add = ({ token }) => {
+const EditProduct = ({ token }) => {
 
   const { id } = useParams()
   const navigate = useNavigate()
@@ -121,9 +121,9 @@ const Add = ({ token }) => {
       formData.append("category", category)
       formData.append("type", type)
       formData.append("price", price)
-      formData.append("quantity", quantity)
       formData.append("bestseller", bestseller)
       formData.append("sizes", JSON.stringify(selectedSizes))
+      formData.append("quantity", quantity)
 
       images.forEach((img, index) => {
         if (img) formData.append(`image${index + 1}`, img)
@@ -141,7 +141,7 @@ const Add = ({ token }) => {
 
       if (res.data.success) {
         toast.success(id ? "Product Updated!" : "Product Added!")
-        navigate("/admin/products")
+        navigate("/list") 
       } else {
         toast.error(res.data.message)
       }
@@ -153,104 +153,86 @@ const Add = ({ token }) => {
   }
 
   return (
-    <form className='flex flex-col w-full items-start gap-3' onSubmit={handleSubmit}>
-      {/* Dynamic Heading */}
-      <p className='text-2xl font-bold mb-6 text-blue-700'>{id ? "Edit Product:" : "Add Product:"}</p>
+    <div className='w-full'>
+      {/* --- Heading Jog Kora Hoyeche --- */}
+      <p className='text-2xl font-bold mb-6 text-blue-700'>Edit Product:</p>
 
-      <div>
-        <p className='mb-2 font-semibold'>Upload Images</p>
-        <div className='flex gap-2'>
-          {[0, 1, 2, 3].map(index => (
-            <label key={index} htmlFor={`image${index}`}>
-              <img
-                className='w-20 h-20 object-cover cursor-pointer border rounded'
-                // Safe image rendering logic
-                src={images[index] ? URL.createObjectURL(images[index]) : (existingImages[index] || assets.upload_area)}
-                alt={`Image ${index + 1}`}
-              />
-              <input type="file" id={`image${index}`} hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} />
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Product Name */}
-      <div className='w-full'>
-        <p className='mb-2 font-semibold'>Product Name</p>
-        <input
-          className='w-full max-w-[500px] px-3 py-2 border rounded'
-          type="text" required
-          value={name} onChange={e => setName(e.target.value)}
-        />
-      </div>
-
-      {/* Description */}
-      <div className='w-full'>
-        <p className='mb-2 font-semibold'>Description</p>
-        <textarea
-          className='w-full max-w-[500px] px-3 py-2 border rounded'
-          placeholder='Write details here...' required
-          value={description} onChange={e => setDescription(e.target.value)}
-        />
-      </div>
-
-      <div className='flex flex-col sm:flex-row gap-4 w-full'>
-        {/* Category */}
+      <form className='flex flex-col w-full items-start gap-3' onSubmit={handleSubmit}>
         <div>
-          <p className='mb-2 font-semibold'>Category</p>
-          <select className='w-full px-3 py-2 border rounded' value={category} onChange={handleCategoryChange} required>
-            <option value="">Select Category</option>
-            {Object.keys(categoryOptions).map(cat => <option key={cat} value={cat}>{cat}</option>)}
-          </select>
+          <p className='mb-2 font-semibold'>Upload Images</p>
+          <div className='flex gap-2'>
+            {[0, 1, 2, 3].map(index => (
+              <label key={index} htmlFor={`image${index}`}>
+                <img
+                  className='w-20 h-20 object-cover cursor-pointer border rounded'
+                  src={images[index] ? URL.createObjectURL(images[index]) : existingImages[index] || assets.upload_area}
+                  alt={`Image ${index + 1}`}
+                />
+                <input type="file" id={`image${index}`} hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} />
+              </label>
+            ))}
+          </div>
         </div>
 
-        {/* Type */}
+        <div className='w-full'>
+          <p className='mb-2 font-semibold'>Product Name</p>
+          <input className='w-full max-w-[500px] px-3 py-2 border rounded' type="text" required value={name} onChange={e => setName(e.target.value)} />
+        </div>
+
+        <div className='w-full'>
+          <p className='mb-2 font-semibold'>Description</p>
+          <textarea className='w-full max-w-[500px] px-3 py-2 border rounded' placeholder='Write details here...' required value={description} onChange={e => setDescription(e.target.value)} />
+        </div>
+
+        <div className='flex flex-col sm:flex-row gap-4 w-full'>
+          <div>
+            <p className='mb-2 font-semibold'>Category</p>
+            <select className='w-full px-3 py-2 border rounded' value={category} onChange={handleCategoryChange} required>
+              <option value="">Select Category</option>
+              {Object.keys(categoryOptions).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </select>
+          </div>
+          <div>
+            <p className='mb-2 font-semibold'>Type</p>
+            <select className='w-full px-3 py-2 border rounded' value={type} onChange={handleTypeChange} required disabled={types.length === 0}>
+              <option value="">Select Type</option>
+              {types.map((t, i) => <option key={i} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <p className='mb-2 font-semibold'>Price</p>
+            <input className='w-full px-3 py-2 border rounded sm:w-[120px]' type="number" required value={price} onChange={e => setPrice(e.target.value)} />
+          </div>
+          <div>
+            <p className='mb-2 font-semibold'>Quantity</p>
+            <input className='w-full px-3 py-2 border rounded sm:w-[120px]' type="number" min={0} value={quantity} onChange={e => setQuantity(e.target.value)} />
+          </div>
+        </div>
+
         <div>
-          <p className='mb-2 font-semibold'>Type</p>
-          <select className='w-full px-3 py-2 border rounded' value={type} onChange={handleTypeChange} required disabled={types.length === 0}>
-            <option value="">Select Type</option>
-            {types.map((t, i) => <option key={i} value={t}>{t}</option>)}
-          </select>
+          <p className='mb-2 font-semibold'>Available Sizes</p>
+          <div className='flex gap-2 flex-wrap'>
+            {sizes.length === 0 && <p className='text-gray-500'>Select a Type first</p>}
+            {sizes.map((size, i) => (
+              <label key={i} className='border px-2 py-1 rounded cursor-pointer'>
+                <input type="checkbox" className='mr-1' value={size} checked={selectedSizes.includes(size)} onChange={handleSizeCheck} />
+                {size}
+              </label>
+            ))}
+          </div>
         </div>
 
-        {/* Price */}
-        <div>
-          <p className='mb-2 font-semibold'>Price</p>
-          <input className='w-full px-3 py-2 border rounded sm:w-[120px]' type="number" min={0} required value={price} onChange={e => setPrice(e.target.value)} />
+        <div className='flex items-center gap-2 mt-2'>
+          <input type="checkbox" id="bestseller" checked={bestseller} onChange={e => setBestseller(e.target.checked)} />
+          <label htmlFor="bestseller">Add to Bestseller</label>
         </div>
 
-        {/* Quantity */}
-        <div>
-          <p className='mb-2 font-semibold'>Quantity</p>
-          <input className='w-full px-3 py-2 border rounded sm:w-[120px]' type="number" min={0} value={quantity} onChange={e => setQuantity(e.target.value)} />
-        </div>
-      </div>
-
-      {/* Sizes */}
-      <div>
-        <p className='mb-2 font-semibold'>Available Sizes</p>
-        <div className='flex gap-2 flex-wrap'>
-          {sizes.length === 0 && <p className='text-gray-500'>Select a Type first</p>}
-          {sizes.map((size, i) => (
-            <label key={i} className='border px-2 py-1 rounded cursor-pointer'>
-              <input type="checkbox" className='mr-1' value={size} checked={selectedSizes.includes(size)} onChange={handleSizeCheck} />
-              {size}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className='flex items-center gap-2 mt-2'>
-        <input type="checkbox" id="bestseller" checked={bestseller} onChange={e => setBestseller(e.target.checked)} />
-        <label htmlFor="bestseller" className='cursor-pointer'>Add to Bestseller</label>
-      </div>
-
-      <button type="submit" className="px-4 py-2 bg-blue-900 text-white rounded mt-4 hover:bg-blue-800 transition-colors">
-        {id ? "Update Product" : "Add Product"}
-      </button>
-
-    </form>
+        <button type="submit" className="px-4 py-2 bg-blue-900 text-white rounded mt-4 hover:bg-blue-800">
+          {id ? "Update Product" : "Add Product"}
+        </button>
+      </form>
+    </div>
   )
 }
 
-export default Add
+export default EditProduct

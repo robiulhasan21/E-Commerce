@@ -3,15 +3,25 @@ import { ShopContext } from '../context/ShopContext'
 import { assets } from '../assets/assets';
 import Title from '../components/Title';
 import ProductItem from '../components/ProductItem';
+import { useSearchParams } from 'react-router-dom';
 
 const Collection = () => {
   const { products, search, showSearch } = useContext(ShopContext);
+  const [searchParams] = useSearchParams();
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [Category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState('relavent');
   const [availableSubCategories, setAvailableSubCategories] = useState([]);
+
+  // Read category from URL parameters on mount
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam && ['Men', 'Women', 'Boys Kid', 'Girls Kid'].includes(categoryParam)) {
+      setCategory([categoryParam]);
+    }
+  }, [searchParams]);
 
   // Toggle Category
   const toggleCategory = (e) => {
@@ -24,14 +34,14 @@ const Collection = () => {
   }
 
   // Toggle SubCategory
-const toggleSubCategory = (e) => {
-  const value = e.target.value;
-  if (subCategory.includes(value)) {
-    setSubCategory([]); 
-  } else {
-    setSubCategory([value]); 
+  const toggleSubCategory = (e) => {
+    const value = e.target.value;
+    if (subCategory.includes(value)) {
+      setSubCategory([]); 
+    } else {
+      setSubCategory([value]); 
+    }
   }
-}
 
   // Update SubCategory options based on selected Category
   useEffect(() => {
@@ -65,6 +75,7 @@ const toggleSubCategory = (e) => {
       productsCopy = productsCopy.filter(item => subCategory.includes(item.type));
     }
 
+    // --- SORTING LOGIC ---
     switch (sortType) {
       case 'low-high':
         productsCopy.sort((a,b)=>(a.price - b.price));
@@ -75,6 +86,12 @@ const toggleSubCategory = (e) => {
       default:
         break;
     }
+    // --- In-stock products first ---
+    productsCopy.sort((a, b) => {
+      const aAvailable = Number(a.quantity) > 0 ? 0 : 1;
+      const bAvailable = Number(b.quantity) > 0 ? 0 : 1;
+      return aAvailable - bAvailable;
+    });
 
     setFilterProducts(productsCopy);
   }, [products, Category, subCategory, sortType, search, showSearch]);
@@ -159,6 +176,7 @@ const toggleSubCategory = (e) => {
                 id={item._id}
                 price={item.price}
                 image={item.image}
+                quantity={item.quantity}
               />
             ))
           }

@@ -90,8 +90,8 @@ const Orders = ({ token }) => {
                 <div className='flex items-center gap-3 mt-2 md:mt-0'>
                   <span className={`px-3 py-1 rounded text-sm font-medium ${
                     order.status === 'Order Placed' ? 'bg-yellow-100 text-yellow-800' :
-                    order.status === 'Out for delivery' ? 'bg-blue-100 text-blue-800' :
                     order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                    order.status === 'Cancelled' ? 'bg-red-100 text-red-800' : 
                     'bg-gray-100 text-gray-800'
                   }`}>
                     {order.status}
@@ -148,9 +148,9 @@ const Orders = ({ token }) => {
                   onChange={(e) => updateOrderStatus(order._id, e.target.value)}
                   className='border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
                 >
-                  <option value="Order Placed">Order Placed</option>
-                  <option value="Out for delivery">Out for delivery</option>
+                  <option value="Order Placed">Order Placed</option>               
                   <option value="Delivered">Delivered</option>
+                  <option value="Cancelled">Cancelled</option>
                 </select>
               </div>
             </div>

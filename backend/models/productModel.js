@@ -8,6 +8,7 @@ const productSchema = new mongoose.Schema({
   category: { type: String, required: true },
   type: { type: String, required: true },
   sizes: { type: Array, required: true },
+  quantity: { type: Number, default: 0 }, // <-- New field
   bestseller: { type: Boolean, default: false },
   date: { type: Number, default: Date.now },
 });
